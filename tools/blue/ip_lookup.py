@@ -20,6 +20,7 @@ import requests, json, sys, re
 
 
 def scan_ip(ip):
+    # 
     unformatted_data = []
 
     unformatted_data.append(
@@ -54,7 +55,7 @@ def scan_ip(ip):
 
 
 def get_data(url, parameters, headers=None):
-
+    # Headers is none by default because they may not always be required by the APIs
     encoded_response = requests.request(
         method="GET",
         url=url,
@@ -68,7 +69,7 @@ def get_data(url, parameters, headers=None):
 
 
 def format_data(unformatted_data):
-
+    # Format the data into a structured dictionary for scalability
     formatted_data = {}
 
     for data in unformatted_data:
@@ -83,6 +84,8 @@ def format_data(unformatted_data):
             formatted_data["usage"] = working_data["usageType"]
             formatted_data["tor_node"] = working_data["isTor"]
             formatted_data["abuse_reports"] = working_data["totalReports"]
+
+            # In the case of a private IP address, no further info is needed so we return
             if not formatted_data['public']:
                 return formatted_data
 
@@ -106,6 +109,7 @@ def format_data(unformatted_data):
 
 
 def check_plural(value, single, plural):
+    # A bit of a novel function that just helps with readability
     if value != 1:
         return plural
     else:
@@ -140,7 +144,7 @@ def single_scan(ip_address):
     print(f"[*] Address: {ip_address}")
 
     if public_address:
-
+        
         defanged_domain = defang(data["domain"])
         usage_type = data["usage"]
         isp = data["isp"]
@@ -166,16 +170,21 @@ def single_scan(ip_address):
 
         if tor_node:
             print("[*] Known TOR node")
-
+            
         if icloud_relay:
             print("[*] Known iCloud relay")
-
+            
         if proxy:
             print("[*] Known proxy")
-
+            
+        # Check to see if the address is illegitimate (not officially assigned by an internet registration institute)
+        if bogon:
+            print("[*] Unallocated IP address (bogon)")
+            
         # Check to see if the address is whitelisted before doing an abuse check
         if whitelisted:
             print("[*] Whitelisted address")
+            
         else:
             # Determine if the address is abusive
             if known_abuser or known_threat or known_attacker or confidence >= 75:
@@ -187,12 +196,10 @@ def single_scan(ip_address):
                 else:
                     print("[*] Non-malicious")
 
-            # Check to see if the address is illegitimate (not officially assigned by an internet registration institute)
-            if bogon:
-                print("[*] Unallocated IP address (bogon)")
+
 
             # Check to see if the address is in any blocklists (ipdata_data.co)
-            # Could be good to add a list of blocklists here to scan directly from the directory
+            # Todo: Have the script scan a list of blacklists from a provided directory path
             if blocklists:
                 blocklist_count = len(blocklists)
                 modifier = check_plural(blocklist_count, "blocklist", "blocklists")
