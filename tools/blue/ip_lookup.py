@@ -24,7 +24,7 @@ import requests, json, sys, re
 
 
 def scan_ip(ip):
-    # 
+    # Append API responses to a list for sorting later on
     unformatted_data = []
 
     unformatted_data.append(
