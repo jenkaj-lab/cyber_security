@@ -1,4 +1,4 @@
-# Usage: python3 .\ip.py {ip_address}
+# Usage: python3 {file_name}.py {ip_address}
 
 ABUSE_IPDB_API_KEY = (
     # https://www.abuseipdb.com/
