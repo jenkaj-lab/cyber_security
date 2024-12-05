@@ -123,6 +123,7 @@ def check_total_abuse_reports(abuse_reports):
 
 
 def assess_abuse_confidence(abuse_reports, confidence):
+    # This is personal preference
     if confidence >= 50:
         print(f"[*] High probability this address is malicious ({confidence}%)")
     elif confidence >= 25:
