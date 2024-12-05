@@ -1,5 +1,6 @@
 # Check the reputation of IP addresses. Useful for SOC writeups.
 # Usage: python3 {file_name}.py {ip_address}
+# Comma separate values for multi-scan
 
 ABUSE_IPDB_API_KEY = (
     # https://www.abuseipdb.com/
