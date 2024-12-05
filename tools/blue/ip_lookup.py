@@ -1,4 +1,4 @@
-# Check the reputation of any blacklists. Useful for SOC writeups.
+# Check the reputation of IP addresses. Useful for SOC writeups.
 # Usage: python3 {file_name}.py {ip_address}
 
 ABUSE_IPDB_API_KEY = (
