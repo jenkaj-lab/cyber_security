@@ -1,23 +1,29 @@
 # Check the reputation of IP addresses. Useful for SOC writeups.
-# Usage: python3 {file_name}.py {ip_address}
-# Comma separate values for multi-scan
+# Comma separate values to scan multiple addresses at once.
+# Usage: python3 {file_name}.py {address_1},{address_2}
 
 ABUSE_IPDB_API_KEY = (
     # https://www.abuseipdb.com/
     # 1,000 lookups per day
-    ""
+    "CHANGEME"
 )
 
 IPDATA_API_KEY = (
     # https://ipdata.co/
     # 1,500 lookups per day
-    ""
+    "CHANGEME"
 )
 
 IPINFO_ACCESS_TOKEN = (
     # https://ipinfo.io/
     # 50,000 lookups per month
-    ""
+    "CHANGEME"
+)
+
+VPN_API_KEY = (
+    # https://vpnapi.io/
+    # 1,000 lookups per day
+    "CHANGEME"
 )
 
 import requests, json, sys, re
@@ -55,6 +61,15 @@ def scan_ip(ip):
         }
     )
 
+    unformatted_data.append(
+        {
+            "vpnapi": get_data(
+                f"https://vpnapi.io/api/{ip}",
+                {"key": VPN_API_KEY},
+            )
+        }
+    )
+
     return format_data(unformatted_data)
 
 
@@ -75,39 +90,55 @@ def get_data(url, parameters, headers=None):
 def format_data(unformatted_data):
     # Format the data into a structured dictionary for scalability
     formatted_data = {}
+    formatted_data["tor_node"] = []
+    formatted_data["vpn"] = []
+    formatted_data["relay"] = []
+    formatted_data["proxy"] = []
 
     for data in unformatted_data:
 
         if "abuse_ipdb" in data:
+
             working_data = data["abuse_ipdb"]["data"]
+            formatted_data["public"] = working_data["isPublic"]
+
+            # No further info is needed when IP is private so we can return early
+            if not formatted_data["public"]:
+                return formatted_data
+
             formatted_data["domain"] = working_data["domain"]
             formatted_data["isp"] = working_data["isp"]
-            formatted_data["public"] = working_data["isPublic"]
             formatted_data["whitelisted"] = working_data["isWhitelisted"]
             formatted_data["confidence"] = working_data["abuseConfidenceScore"]
             formatted_data["usage"] = working_data["usageType"]
-            formatted_data["tor_node"] = working_data["isTor"]
             formatted_data["abuse_reports"] = working_data["totalReports"]
-
-            # In the case of a private IP address, no further info is needed so we return
-            if not formatted_data['public']:
-                return formatted_data
+            formatted_data["tor_node"].append(working_data["isTor"])
 
         elif "ipdata" in data:
             working_data = data["ipdata"]
-            formatted_data["icloud_relay"] = working_data["is_icloud_relay"]
-            formatted_data["proxy"] = working_data["is_proxy"]
             formatted_data["known_attacker"] = working_data["is_known_attacker"]
             formatted_data["known_abuser"] = working_data["is_known_abuser"]
             formatted_data["known_threat"] = working_data["is_threat"]
             formatted_data["bogon"] = working_data["is_bogon"]
-            formatted_data["blocklists"] = working_data["blocklists"]
+            formatted_data["blocklists"] = working_data[
+                "blocklists"
+            ]  # can be removed in future
+            formatted_data["tor_node"].append(working_data["is_tor"])
+            formatted_data["relay"].append(working_data["is_icloud_relay"])
+            formatted_data["proxy"].append(working_data["is_proxy"])
 
         elif "ipinfo" in data:
             working_data = data["ipinfo"]
             formatted_data["city"] = working_data["city"]
             formatted_data["region"] = working_data["region"]
             formatted_data["country"] = working_data["country"]
+
+        elif "vpnapi" in data:
+            working_data = data["vpnapi"]["security"]
+            formatted_data["vpn"].append(working_data["vpn"])
+            formatted_data["tor_node"].append(working_data["tor"])
+            formatted_data["relay"].append(working_data["relay"])
+            formatted_data["proxy"].append(working_data["proxy"])
 
     return formatted_data
 
@@ -123,7 +154,7 @@ def check_plural(value, single, plural):
 def check_total_abuse_reports(abuse_reports):
     modifier = check_plural(abuse_reports, "time", "times")
     if abuse_reports > 0:
-        print(f"[*] Reported as abusive {abuse_reports} {modifier}")
+        print(f"[*] Reported {abuse_reports} {modifier} for abuse")
 
 
 def assess_abuse_confidence(abuse_reports, confidence):
@@ -142,14 +173,50 @@ def defang(domain):
     return defanged_domain
 
 
-def single_scan(ip_address):
+def check_if_true(list_of_items):
+    for item in list_of_items:
+        if item:
+            return True
+    return False
+
+
+def get_detections(data):
+
+    detections = []
+
+    tor_node = check_if_true(data["tor_node"])
+    icloud_relay = check_if_true(data["relay"])
+    proxy = check_if_true(data["proxy"])
+    vpn = check_if_true(data["vpn"])
+    bogon = data["bogon"]
+
+    if tor_node:
+        detections.append("TOR Node")
+
+    if icloud_relay:
+        detections.append("Relay")
+
+    if proxy:
+        detections.append("Proxy")
+
+    if vpn:
+        detections.append("VPN")
+
+    if bogon:
+        # Check to see if the address is illegitimate (not officially assigned by an internet registration institute)
+        detections.append("Bogon")
+
+    return detections
+
+
+def lookup(ip_address):
 
     data = scan_ip(ip_address)
     public_address = data["public"]
     print(f"[*] Address: {ip_address}")
 
     if public_address:
-        
+
         defanged_domain = defang(data["domain"])
         usage_type = data["usage"]
         isp = data["isp"]
@@ -164,51 +231,40 @@ def single_scan(ip_address):
         abuse_reports = data["abuse_reports"]
         confidence = data["confidence"]
         whitelisted = data["whitelisted"]
-        tor_node = data["tor_node"]
         known_attacker = data["known_attacker"]
         known_abuser = data["known_abuser"]
         known_threat = data["known_threat"]
-        bogon = data["bogon"]
         blocklists = data["blocklists"]
-        icloud_relay = data["icloud_relay"]
-        proxy = data["proxy"]
 
-        if tor_node:
-            print("[*] Known TOR node")
-            
-        if icloud_relay:
-            print("[*] Known iCloud relay")
-            
-        if proxy:
-            print("[*] Known proxy")
-            
-        # Check to see if the address is illegitimate (not officially assigned by an internet registration institute)
-        if bogon:
-            print("[*] Unallocated IP address (bogon)")
-            
         # Check to see if the address is whitelisted before doing an abuse check
         if whitelisted:
             print("[*] Whitelisted address")
-            
+
         else:
+
+            detections = get_detections(data)
+            if detections:
+                stringified_detections = ", ".join(detections)
+                print(f"[*] Detections: {stringified_detections}")
+
             # Determine if the address is abusive
             if known_abuser or known_threat or known_attacker or confidence >= 75:
                 print("[*] Known malicious address")
                 check_total_abuse_reports(abuse_reports)
-            else:
-                if confidence > 0:
-                    assess_abuse_confidence(abuse_reports, confidence)
-                else:
-                    print("[*] Non-malicious")
 
-
-
-            # Check to see if the address is in any blocklists (ipdata_data.co)
-            # Todo: Have the script scan a list of blacklists from a provided directory path
-            if blocklists:
+            elif blocklists:
+                # Check to see if the address is in any blocklists (ipdata_data.co)
+                # Todo: Have the script scan a list of blacklists from a provided directory path
                 blocklist_count = len(blocklists)
                 modifier = check_plural(blocklist_count, "blocklist", "blocklists")
                 print(f"[*] Appeared in {blocklist_count} {modifier}")
+
+            elif confidence > 0:
+                assess_abuse_confidence(abuse_reports, confidence)
+
+            else:
+                print("[*] Non-malicious")
+
     else:
         print(f"[*] Private/reserved address")
 
@@ -216,15 +272,12 @@ def single_scan(ip_address):
 def main():
 
     input = sys.argv[1]
-    ip_addresses = input.split(',')
+    ip_addresses = input.split(",")
 
+    print("")  # padding
     for ip in ip_addresses:
-        single_scan(ip)
-        
-    #if len(ip_addresses) > 1:
-        # multi_scan(ip_address)
-    #else:
-        #single_scan(ip_address)
+        lookup(ip)
+        print("")  # padding
 
 
 main()
