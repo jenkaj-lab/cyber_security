@@ -158,13 +158,14 @@ def check_total_abuse_reports(abuse_reports):
 
 
 def assess_abuse_confidence(abuse_reports, confidence):
-    # This is personal preference
-    if confidence >= 50:
-        print(f"[*] High probability this address is malicious ({confidence}%)")
+    # These values are personal preference
+    # Note: 75%+ confidence is matched in the reputation check
+    if confidence >= 50 and confidence < 75:
+        print(f"[*] High probability this address is abusive ({confidence}%)")
     elif confidence >= 25:
-        print(f"[*] Moderate probability this address is malicious ({confidence}%)")
+        print(f"[*] Moderate probability this address is abusive ({confidence}%)")
     else:
-        print(f"[*] Low probability this address is malicious ({confidence}%)")
+        print(f"[*] Low probability this address is abusive ({confidence}%)")
     check_total_abuse_reports(abuse_reports)
 
 
@@ -209,6 +210,40 @@ def get_detections(data):
     return detections
 
 
+def get_reputation(data, confidence):
+
+    reputation = []
+
+    known_attacker = data["known_attacker"]
+    known_abuser = data["known_abuser"]
+    known_threat = data["known_threat"]
+
+    if known_abuser or confidence >= 75:
+        reputation.append("Abusive")
+
+    if known_attacker:
+        reputation.append("Attacker")
+
+    if known_threat:
+        reputation.append("Threat")
+
+    return reputation
+
+
+def sort_blocklists(blocklists):
+
+    formatted_blocklist = []
+
+    for blocklist in blocklists:
+        formatted_blocklist.append(blocklist["name"])
+
+    return formatted_blocklist
+
+
+def list_to_string(list):
+    return ", ".join(list)
+
+
 def lookup(ip_address):
 
     data = scan_ip(ip_address)
@@ -231,9 +266,6 @@ def lookup(ip_address):
         abuse_reports = data["abuse_reports"]
         confidence = data["confidence"]
         whitelisted = data["whitelisted"]
-        known_attacker = data["known_attacker"]
-        known_abuser = data["known_abuser"]
-        known_threat = data["known_threat"]
         blocklists = data["blocklists"]
 
         # Check to see if the address is whitelisted before doing an abuse check
@@ -244,26 +276,29 @@ def lookup(ip_address):
 
             detections = get_detections(data)
             if detections:
-                stringified_detections = ", ".join(detections)
-                print(f"[*] Detections: {stringified_detections}")
+                modifier = check_plural(len(detections), "Detection", "Detections")
+                formatted_detections = list_to_string(detections)
+                print(f"[*] {modifier}: {formatted_detections}")
 
-            # Determine if the address is abusive
-            if known_abuser or known_threat or known_attacker or confidence >= 75:
-                print("[*] Known malicious address")
+            reputation = get_reputation(data, confidence)
+            if reputation:
+                formatted_reputation = list_to_string(reputation)
+                print(f"[*] Reputation: {formatted_reputation}")
                 check_total_abuse_reports(abuse_reports)
 
-            elif blocklists:
-                # Check to see if the address is in any blocklists (ipdata_data.co)
+            if blocklists:
+                # Check to see if the address is in any blocklists on ipdata
                 # Todo: Have the script scan a list of blacklists from a provided directory path
-                blocklist_count = len(blocklists)
-                modifier = check_plural(blocklist_count, "blocklist", "blocklists")
-                print(f"[*] Appeared in {blocklist_count} {modifier}")
+                modifier = check_plural(len(blocklists), "Blocklist", "Blocklists")
+                stripped_blocklists = sort_blocklists(blocklists)
+                formatted_blocklists = list_to_string(stripped_blocklists)
+                print(f"[*] {modifier}: {formatted_blocklists}")
 
             elif confidence > 0:
                 assess_abuse_confidence(abuse_reports, confidence)
 
             else:
-                print("[*] Non-malicious")
+                print("[*] Non-malicious address")
 
     else:
         print(f"[*] Private/reserved address")
