@@ -154,18 +154,18 @@ def check_plural(value, single, plural):
 def check_total_abuse_reports(abuse_reports):
     modifier = check_plural(abuse_reports, "time", "times")
     if abuse_reports > 0:
-        print(f"[*] Reported {abuse_reports} {modifier} for abuse")
+        print(f"    - Reported {abuse_reports} {modifier} for abuse")
 
 
 def assess_abuse_confidence(abuse_reports, confidence):
     # These values are personal preference
     # Note: 75%+ confidence is matched in the reputation check
     if confidence >= 50 and confidence < 75:
-        print(f"[*] High probability this address is abusive ({confidence}%)")
+        print(f"    - High probability this address is abusive ({confidence}%)")
     elif confidence >= 25:
-        print(f"[*] Moderate probability this address is abusive ({confidence}%)")
+        print(f"    - Moderate probability this address is abusive ({confidence}%)")
     else:
-        print(f"[*] Low probability this address is abusive ({confidence}%)")
+        print(f"    - Low probability this address is abusive ({confidence}%)")
     check_total_abuse_reports(abuse_reports)
 
 
@@ -248,7 +248,7 @@ def lookup(ip_address):
 
     data = scan_ip(ip_address)
     public_address = data["public"]
-    print(f"[*] Address: {ip_address}")
+    print(f"[*] Scan results for {ip_address}")
 
     if public_address:
 
@@ -259,9 +259,9 @@ def lookup(ip_address):
         region = data["region"]
         country = data["country"]
 
-        print(f"[*] Domain: {defanged_domain}")
-        print(f"[*] ISP: {isp} ({usage_type})")
-        print(f"[*] Location: {city}, {region}. {country}.")
+        print(f"    - Domain: {defanged_domain}")
+        print(f"    - ISP: {isp} ({usage_type})")
+        print(f"    - Location: {city}, {region}. {country}.")
 
         abuse_reports = data["abuse_reports"]
         confidence = data["confidence"]
@@ -270,7 +270,7 @@ def lookup(ip_address):
 
         # Check to see if the address is whitelisted before doing an abuse check
         if whitelisted:
-            print("[*] Whitelisted address")
+            print("    - Whitelisted address")
 
         else:
 
@@ -278,12 +278,12 @@ def lookup(ip_address):
             if detections:
                 modifier = check_plural(len(detections), "Detection", "Detections")
                 formatted_detections = list_to_string(detections)
-                print(f"[*] {modifier}: {formatted_detections}")
+                print(f"    - {modifier}: {formatted_detections}")
 
             reputation = get_reputation(data, confidence)
             if reputation:
                 formatted_reputation = list_to_string(reputation)
-                print(f"[*] Reputation: {formatted_reputation}")
+                print(f"    - Reputation: {formatted_reputation}")
                 check_total_abuse_reports(abuse_reports)
 
             if blocklists:
@@ -292,16 +292,16 @@ def lookup(ip_address):
                 modifier = check_plural(len(blocklists), "Blocklist", "Blocklists")
                 stripped_blocklists = sort_blocklists(blocklists)
                 formatted_blocklists = list_to_string(stripped_blocklists)
-                print(f"[*] {modifier}: {formatted_blocklists}")
+                print(f"    - {modifier}: {formatted_blocklists}")
 
             elif confidence > 0:
                 assess_abuse_confidence(abuse_reports, confidence)
 
             else:
-                print("[*] Non-malicious address")
+                print("    - Non-malicious")
 
     else:
-        print(f"[*] Private/reserved address")
+        print(f"    - Private/reserved")
 
 
 def main():
@@ -309,10 +309,8 @@ def main():
     input = sys.argv[1]
     ip_addresses = input.split(",")
 
-    print("")  # padding
     for ip in ip_addresses:
         lookup(ip)
-        print("")  # padding
 
 
 main()
