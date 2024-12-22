@@ -20,3 +20,14 @@ AWSCloudTrail
 | extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")
 | order by FormattedTime desc
 ```
+# Identity Info
+Get job title, user type, and assigned roles
+```
+let username = "";
+IdentityInfo
+| where AccountName has username or AccountUPN has username or AccountDisplayName has username
+| where TimeGenerated > ago(7d)
+| order by TimeGenerated desc
+| limit 1
+| project AccountDisplayName, UserType, JobTitle, Department, AssignedRoles, GroupMembership
+```
