@@ -10,3 +10,13 @@ SigninLogs
 | project FormattedTime, IPAddress, Status, DeviceDetail, AuthenticationDetails  
 //| summarize Count = count() by ResultType, ResultDescription  
 ```
+# AWS Console Logins
+```
+let username = "";
+AWSCloudTrail
+| where UserIdentityPrincipalid contains username
+| where EventName == "ConsoleLogin" // successful logins
+//| where SourceIpAddress == ""
+| extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")
+| order by FormattedTime desc
+```
