@@ -23,7 +23,7 @@ AWSCloudTrail
 # Identity Info
 Get job title, user type, and assigned roles
 ```
-let username = "";
+let username = ""; // paste a username WITHOUT a domain 
 IdentityInfo
 | where AccountName has username or AccountUPN has username or AccountDisplayName has username
 | where TimeGenerated > ago(7d)
