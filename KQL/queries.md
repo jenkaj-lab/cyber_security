@@ -2,7 +2,7 @@
 ```
 let username = "";  
 SigninLogs  
-| where UserDisplayName contains username or UserPrincipalName contains username  
+| where UserDisplayName has username or UserPrincipalName has username  
 | where ResultType == 0 // successful logins  
 //| where IPAddress == ""  
 | extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")  
@@ -14,7 +14,7 @@ SigninLogs
 ```
 let username = "";
 AWSCloudTrail
-| where UserIdentityPrincipalid contains username
+| where UserIdentityPrincipalid has username
 | where EventName == "ConsoleLogin" // successful logins
 //| where SourceIpAddress == ""
 | extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")
