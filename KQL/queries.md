@@ -10,7 +10,7 @@ SigninLogs
 | project FormattedTime, IPAddress, Status, DeviceDetail, AuthenticationDetails  
 //| summarize Count = count() by ResultType, ResultDescription  
 ```
-# AWS Console Logins
+# AWS CloudTrail Console Logins
 ```
 let username = "";
 AWSCloudTrail
