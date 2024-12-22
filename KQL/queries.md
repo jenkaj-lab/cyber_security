@@ -1,4 +1,5 @@
 # Windows Sign-ins
+```
 let username = "";  
 SigninLogs  
 | where UserDisplayName contains username or UserPrincipalName contains username  
@@ -8,3 +9,4 @@ SigninLogs
 | order by FormattedTime desc  
 | project FormattedTime, IPAddress, Status, DeviceDetail, AuthenticationDetails  
 //| summarize Count = count() by ResultType, ResultDescription  
+```
