@@ -15,7 +15,7 @@ SigninLogs
 let username = "";
 AWSCloudTrail
 | where UserIdentityPrincipalid has username
-| where EventName == "ConsoleLogin" // successful logins
+| where EventName == "ConsoleLogin"
 //| where SourceIpAddress == ""
 | extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")
 | order by FormattedTime desc
