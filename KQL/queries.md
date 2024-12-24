@@ -10,6 +10,16 @@ SigninLogs
 | project FormattedTime, IPAddress, Status, DeviceDetail, AuthenticationDetails  
 //| summarize Count = count() by ResultType, ResultDescription  
 ```
+```
+// Retrieve a count of logons by Result Type
+let usernames = dynamic(["USERNAME1", "USERNAME2"]);  
+SigninLogs
+| where UserDisplayName in~ (usernames) or UserPrincipalName in~ (usernames)    
+| where AppDisplayName == "Office 365 Exchange Online"
+| extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")  
+| order by FormattedTime desc   
+| summarize Count = count() by ResultType, UserDisplayName
+```
 # AWS CloudTrail Console Logins
 ```
 let username = "";
