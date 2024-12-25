@@ -43,7 +43,7 @@ IdentityInfo
 # Email Events
 Find out what's happened to an email i.e. has it been quarantined?
 ```
-EmailEvents
+union EmailEvents, EmailAttachmentInfo
 | where RecipientEmailAddress == ""
 | where SenderFromAddress == ""
 ```
