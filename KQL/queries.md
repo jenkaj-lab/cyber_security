@@ -15,7 +15,7 @@ SigninLogs
 let usernames = dynamic(["USERNAME1", "USERNAME2"]);  
 SigninLogs
 | where UserDisplayName in~ (usernames) or UserPrincipalName in~ (usernames)    
-| where AppDisplayName == "Office 365 Exchange Online"
+//| where AppDisplayName == "Office 365 Exchange Online"
 | extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")  
 | order by FormattedTime desc   
 | summarize Count = count() by ResultType, UserDisplayName
@@ -38,6 +38,12 @@ IdentityInfo
 | where AccountName has username or AccountUPN has username or AccountDisplayName has username
 | where TimeGenerated > ago(7d)
 | order by TimeGenerated desc
-| limit 1
 | project AccountDisplayName, UserType, JobTitle, Department, AssignedRoles, GroupMembership
+```
+# Email Events
+Find out what's happened to an email i.e. has it been quarantined?
+```
+EmailEvents
+| where RecipientEmailAddress == ""
+| where SenderFromAddress == ""
 ```
