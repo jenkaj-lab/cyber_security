@@ -1,14 +1,15 @@
 # Windows Sign-ins
 ```
-let username = "";  
-SigninLogs  
-| where UserDisplayName has username or UserPrincipalName has username  
-| where ResultType == 0 // successful logins  
-//| where IPAddress == ""  
-| extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")  
-| order by FormattedTime desc  
-| project FormattedTime, IPAddress, Status, DeviceDetail, AuthenticationDetails  
-//| summarize Count = count() by ResultType, ResultDescription  
+let username = "";
+SigninLogs
+| where UserDisplayName has username or UserPrincipalName has username
+//| where ResultType == 0 // successful logins
+//| where IPAddress == ""
+| extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")
+| order by TimeGenerated desc
+| project Identity, FormattedTime, IPAddress, Status, DeviceDetail, AuthenticationDetails
+//| summarize Count = count() by ResultType, ResultDescription
+
 ```
 ```
 // Retrieve a count of logons by Result Type
@@ -17,7 +18,7 @@ SigninLogs
 | where UserDisplayName in~ (usernames) or UserPrincipalName in~ (usernames)    
 //| where AppDisplayName == "Office 365 Exchange Online"
 | extend FormattedTime = format_datetime(TimeGenerated, "HH:mm:ss - dd/MM/yyyy")  
-| order by FormattedTime desc   
+| order by TimeGenerated desc   
 | summarize Count = count() by ResultType, UserDisplayName
 ```
 # AWS CloudTrail Console Logins
