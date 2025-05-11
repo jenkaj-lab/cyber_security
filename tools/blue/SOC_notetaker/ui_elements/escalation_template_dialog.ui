@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EscalationTemplateDialog</class>
+ <widget class="QDialog" name="EscalationTemplateDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>301</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Escalation Template</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* General window background */
+QMainWindow {
+    background-color: rgb(31, 31, 31);
+    color: white; /* Default text color for all widgets */
+}
+
+/* Styling for the tab widget container */
+QTabWidget::pane {
+    background: rgb(31, 31, 31); /* Background color of the whole tab area */
+    border: none;
+}
+
+/* Default tab styling */
+QTabBar::tab {
+    background: rgb(40, 40, 40); /* Default tab color */
+    color: white; /* White text */
+    padding: 10px;
+    border: 1px solid rgb(60, 60, 60); /* Optional border */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+/* Selected tab styling */
+QTabBar::tab:selected {
+    background: rgb(52, 52, 52); /* Selected tab color */
+    color: rgb(255, 170, 0);
+    border-bottom: 2px solid rgb(255, 170, 0); /* Highlight effect */
+}
+
+/* Hover effect for tabs */
+QTabBar::tab:hover {
+    background: rgb(60, 60, 60);
+}
+
+/* === TEXT WIDGET STYLING (WHITE TEXT DEFAULT) === */
+QLabel, QTextEdit, QLineEdit, QCheckBox, QRadioButton, QListWidget, QTreeWidget, QTableWidget {
+    color: white; /* All text is white by default */
+}
+
+/* Styling for text input fields */
+QTextEdit, QLineEdit {
+    background-color: rgb(24, 24, 24);
+    selection-background-color: rgb(52, 52, 52);
+    selection-color: rgb(255, 170, 0);
+    border: 1px solid rgb(60, 60, 60);
+}
+
+/* === BUTTON STYLING === */
+
+/* Default button appearance */
+QPushButton {
+    background-color: rgb(40, 40, 40); /* Dark gray background */
+    color: white; /* White text */
+    border: 1px solid rgb(60, 60, 60); /* Subtle border */
+    border-radius: 5px;
+    padding: 8px 12px;
+}
+
+/* Hover effect */
+QPushButton:hover {
+    background-color: rgb(60, 60, 60); /* Lighter gray */
+}
+
+/* Pressed/clicked effect */
+QPushButton:pressed {
+    background-color: rgb(52, 52, 52); /* Slightly darker */
+}
+
+/* Disabled buttons */
+QPushButton:disabled {
+    background-color: rgb(80, 80, 80);
+    color: rgb(150, 150, 150); /* Faded text */
+}
+
+/* === QListWidget Styling === */
+QListWidget {
+    background-color: rgb(24, 24, 24); /* Dark background */
+    border: 1px solid rgb(60, 60, 60); /* Subtle border */
+    padding: 5px;
+    color: white; /* Default text color */
+}
+
+/* Individual QListWidget Items */
+QListWidget::item {
+    background-color: rgb(32, 32, 32);
+    padding: 8px;
+    border-radius: 3px;
+}
+
+/* Hover effect */
+QListWidget::item:hover {
+    background-color: rgb(60, 60, 60);
+    color: rgb(255, 170, 0);
+}
+
+/* Selected item effect */
+QListWidget::item:selected {
+    background-color: rgb(52, 52, 52);
+    border: 1px solid rgb(255, 170, 0);
+    color: rgb(255, 170, 0);
+}
+
+/* === Scrollbar Styling (Optional, for QListWidget &amp; other widgets) === */
+QScrollBar:vertical {
+    border: none;
+    background: rgb(31, 31, 31);
+    width: 10px;
+    margin: 2px 2px 2px 2px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgb(60, 60, 60);
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: rgb(80, 80, 80);
+}
+
+QScrollBar::handle:vertical:pressed {
+    background: rgb(100, 100, 100);
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+    border: none;
+}
+</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="EscalationTemplateGrid">
+     <item row="0" column="0" colspan="3">
+      <widget class="QLineEdit" name="EscalationTemplateTitle">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="placeholderText">
+        <string>Escalation Template Title</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="CloseEscalationTemplateButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="SaveAndCloseEscalationTemplateButton">
+       <property name="text">
+        <string>Save and Close</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="SaveEscalationTemplateButton">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="3">
+      <widget class="QTextEdit" name="EscalationTemplateBody">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="placeholderText">
+        <string>Escalation Template Body</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
