@@ -1,3 +1,13 @@
+For Linux:
+```
+source ./venv/bin/activate
+```
+
+For Windows:
+```
+venv/activate
+```
+
 Make sure you're in venv before doing anything
 - Scripts/activate
 
